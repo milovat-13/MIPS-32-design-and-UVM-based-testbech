@@ -1,0 +1,35 @@
+// ============================================================
+// mips_transaction.sv
+// ============================================================
+`ifndef MIPS_TRANSACTION_SV
+`define MIPS_TRANSACTION_SV
+
+class mips_transaction extends uvm_sequence_item;
+  //Declaring ports for connecting to the interface 
+  bit [31:0] alu_result;     
+  bit [31:0] instr1;
+  bit [31:0] instr2;
+  bit [31:0] instr3;
+  bit [31:0] instr4;
+  bit mem_write;
+  bit [31:0] pc;
+
+  // new constructor too build the mips_transaction class
+  function new(string name = "mips_transaction");
+    super.new(name);
+  endfunction	//new
+  
+  //UVM field macros for performing the UVM custom core methods
+  `uvm_object_utils_begin(mips_transaction)
+  `uvm_field_int(alu_result, UVM_DEFAULT);
+  `uvm_field_int(instr1, UVM_DEFAULT);
+  `uvm_field_int(instr2, UVM_DEFAULT);
+  `uvm_field_int(instr3, UVM_DEFAULT);
+  `uvm_field_int(instr4, UVM_DEFAULT);
+  `uvm_field_int(mem_write, UVM_DEFAULT);
+  `uvm_field_int(pc, UVM_DEFAULT);
+  `uvm_object_utils_end
+  
+endclass	//mips_transaction
+
+`endif

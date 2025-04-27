@@ -1,0 +1,24 @@
+// ============================================================
+// mips_scoreboard.sv
+// ============================================================
+`ifndef MIPS_SCOREBOARD_SV
+`define MIPS_SCOREBOARD_SV
+
+class mips_scoreboard extends uvm_component;
+  `uvm_component_utils(mips_scoreboard)
+
+  uvm_analysis_imp #(mips_transaction, mips_scoreboard) sb_port;
+
+  function new(string name, uvm_component parent);
+    super.new(name, parent);
+    sb_port = new("sb_port", this);
+  endfunction
+
+  virtual function void write(mips_transaction tx);
+    //$display("[SCOREBOARD] Observed Instruction: %h", tx.instr);
+    `uvm_info("SCOREBOARD", "Data received from the monitor", UVM_NONE);
+    `uvm_info("SCOREBOARD", $sformatf("instr1 = 'h%0h, instr2 = 'h%0h, instr3 = 'h%0h, instr4 = 'h%0h, pc = 'h%0h, alu_result = 'h%0h, mem_write = 'h%0h", tx.instr1, tx.instr2, tx.instr3, tx.instr4, tx.pc, tx.alu_result, tx.mem_write), UVM_NONE);
+  endfunction
+endclass
+
+`endif

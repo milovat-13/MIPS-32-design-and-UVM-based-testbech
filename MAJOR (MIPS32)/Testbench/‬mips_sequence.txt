@@ -1,0 +1,38 @@
+// ============================================================
+// mips_sequence.sv
+// ============================================================
+`ifndef MIPS_SEQUENCE_SV
+`define MIPS_SEQUENCE_SV
+
+class mips_sequence extends uvm_sequence #(mips_transaction);
+  // UVM object utility macro
+  `uvm_object_utils(mips_sequence)
+  
+  
+  mips_transaction tx; 
+  
+  //new constructor to build the mips_sequence class
+  function new(string name = "mips_sequence");
+    super.new(name);
+  endfunction	//new
+  
+  //Defining the body task of the sequence
+  task body();
+    //building the mips_transaction class with handler tx
+    tx = mips_transaction::type_id::create("tx");
+    
+    repeat(10)
+      begin
+    	//starting the sequence and giving data to the sequencer
+        `uvm_info("SEQUENCER", "Starting the sequencer", UVM_NONE);
+    	start_item(tx); 
+    	`uvm_info("SEQUENCE", "DATA is successfully sent to the driver via sequencer", UVM_NONE);
+    	finish_item(tx);
+        `uvm_info("SEQUENCE", "----------------------Transaction Completed, looking for next transaction(if any)----------------------", UVM_NONE);
+      end
+  
+  endtask	//body
+  
+endclass	//mips_sequence
+
+`endif

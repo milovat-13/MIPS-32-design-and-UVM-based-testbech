@@ -1,0 +1,62 @@
+// ============================================================
+// mips_driver.sv
+// ============================================================
+`ifndef MIPS_DRIVER_SV
+`define MIPS_DRIVER_SV
+
+class mips_driver extends uvm_driver #(mips_transaction);
+  //UVM component utility macro
+  `uvm_component_utils(mips_driver)
+  
+  //instantiating the virtual interface so that the driver can set values in the interface
+  virtual mips_if vif;
+  
+  //creating a mips_transaction class
+  mips_transaction tx;
+  
+  //Declaring an int datatype to count the transaction
+  bit one  = 'b1;
+  
+  //new constructor for building the mips_driver class
+  function new(string name, uvm_component parent);
+    super.new(name, parent);
+  endfunction	//new
+  
+  //specifying the build_phase of the driver 
+  virtual function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    
+    //building the mips_transctions class with handler tx
+    tx = mips_transaction :: type_id :: create("tx");
+    
+    //checking if driver is able to drive(set) values in the interface, if not then throw UVM faltal error.
+    if (!uvm_config_db#(virtual mips_if)::get(this, "", "vif", vif)) 
+      begin
+        `uvm_fatal("DRIVER", "Cannot access virtual interface");
+ 	  end
+    
+  endfunction	//build_phase
+  
+  
+  
+  //specifying the run_phase of the driver
+  task run_phase(uvm_phase phase);
+    forever 
+      begin
+        //`uvm_info("DRIVER", "Waiting for last transaction to complete", UVM_NONE);
+        
+      	seq_item_port.get_next_item(tx);
+        `uvm_info("DRIVER", "Data recieved from the sequence via sequencer", UVM_NONE);
+        
+        `uvm_info("DRIVER","Starting the monitor", UVM_NONE);
+        vif.run_monitor = 'b1;
+        one = 0;
+        `uvm_info("DRIVER", "Waiting for the transaction to complete", UVM_NONE);
+        wait(!vif.run_monitor | one);
+        seq_item_port.item_done();
+      end
+  endtask	//build_phase
+                  
+endclass	//mips_driver
+
+`endif

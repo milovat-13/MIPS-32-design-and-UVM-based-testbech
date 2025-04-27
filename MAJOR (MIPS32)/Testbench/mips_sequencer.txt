@@ -1,0 +1,18 @@
+// ============================================================
+// mips_sequencer.sv
+// ============================================================
+`ifndef MIPS_SEQUENCER_SV
+`define MIPS_SEQUENCER_SV
+
+class mips_sequencer extends uvm_sequencer #(mips_transaction);
+    // UVM object utility macro
+  `uvm_component_utils(mips_sequencer)
+  
+  //new constructor to build the mips_sequencer class
+  function new(string name, uvm_component parent);
+    super.new(name, parent);
+  endfunction	//new
+  
+endclass	//mips_sequencer
+
+`endif

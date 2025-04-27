@@ -1,0 +1,88 @@
+// ============================================================
+// mips_monitor.sv
+// ============================================================
+`ifndef MIPS_MONITOR_SV
+`define MIPS_MONITOR_SV
+
+class mips_monitor extends uvm_component;
+    //UVM component utility macro
+  `uvm_component_utils(mips_monitor)
+  
+  //instantiating the virtual interface so that the driver can set values in the interface
+  virtual mips_if vif;
+  
+  //creating a mips_transaction class
+  mips_transaction tx;
+  
+  //UVM analysis port for sending data to the scoreboard for further analysis
+  uvm_analysis_port #(mips_transaction) mon_ap;
+  
+  //Specifying the build_phase of the monitor
+virtual function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+  
+  //building the mips_transctions class with handler tx
+  tx = mips_transaction :: type_id :: create("tx");
+  
+  //checking if monitor is able to receive values from the interface, if not then throw UVM faltal error.
+    if (!uvm_config_db#(virtual mips_if)::get(this, "", "vif", vif)) 
+      begin
+      `uvm_fatal("MONITOR", "Can not take values from the interface")
+	  end
+  
+  endfunction	//build_phase
+  
+  //new constructor for building the mips_driver class
+  function new(string name, uvm_component parent);
+    super.new(name, parent);
+    
+    //constructing the analysis port
+    mon_ap = new("mon_ap", this);
+    
+  endfunction	//new
+  
+  //specifying the run_phase of the monitor
+  task run_phase(uvm_phase phase);
+    forever 
+      begin
+        wait(vif.run_monitor);
+        repeat(2)
+          begin
+            #1;
+            `uvm_info("MONITOR", "Waiting for clock 1 to send data to scoreboard", UVM_NONE);
+            @(posedge vif.clk1);
+            //Taking data from the interface and storing it in the mips_transaction declared as tx
+            tx.instr1 = vif.instr1;
+            tx.instr2 = vif.instr2;
+            tx.instr3 = vif.instr3;
+            tx.instr4 = vif.instr4;
+            tx.pc = vif.pc;
+            tx.alu_result = vif.alu_result;
+            tx.mem_write = vif.mem_write;
+            //Sending data to the scoreboard to verify the results
+            mon_ap.write(tx);
+            `uvm_info("MONITOR", "Data taken from the DUT and sent to the scoreboard after clock 1", UVM_NONE);
+
+
+            `uvm_info("MONITOR", "Waiting for clock 2 to send data to scoreboard", UVM_NONE);
+            @(posedge vif.clk2);
+            //Taking data from the interface and storing it in the mips_transaction declared as tx
+            tx.instr1 = vif.instr1;
+            tx.instr2 = vif.instr2;
+            tx.instr3 = vif.instr3;
+            tx.instr4 = vif.instr4;
+            tx.pc = vif.pc;
+            tx.alu_result = vif.alu_result;
+            tx.mem_write = vif.mem_write;
+            //Sending data to the scoreboard to verify the results
+            mon_ap.write(tx);
+            `uvm_info("MONITOR", "Data taken from the DUT and sent to the scoreboard after clock 2", UVM_NONE);	
+         end
+        vif.run_monitor='b0;
+      end
+       
+  endtask	//run_phase
+  
+endclass	//mips_monitor
+	
+`endif
